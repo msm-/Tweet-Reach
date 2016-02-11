@@ -1,12 +1,10 @@
-import tweedle
+import twitter
 
-
-api = tweedle.Api(consumer_key= <string>,,
-consumer_secret= <string>, 
-access_token_key= <string>,, 
-access_token_secret= <string>,'
-
-#tweet_id = '433357143966642176'
+# Keys from https://apps.twitter.com/app/<id>/keys
+api = twitter.Api(consumer_key= 'string',
+consumer_secret= 'string', 
+access_token_key= 'string', 
+access_token_secret= 'string')
 
 def find_reach(tweet_id):
 
