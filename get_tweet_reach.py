@@ -1,24 +1,31 @@
-import twitter
+#!/usr/bin/env python3
+
+from twitter import OAuth, Twitter
+import argparse
 
 # Keys from https://apps.twitter.com/app/<id>/keys
-api = twitter.Api(consumer_key= 'string',
-consumer_secret= 'string', 
-access_token_key= 'string', 
-access_token_secret= 'string')
+consumer_key = ''
+consumer_secret = ''
+token = ''
+token_secret = ''
+
+api = Twitter(auth=OAuth(token, token_secret, consumer_key, consumer_secret))
 
 def find_reach(tweet_id):
+    total_exposure = api.statuses.show(_id=tweet_id)['user']['followers_count']
 
-    retweeters = api.GetRetweeters(tweet_id) #returns a list of retweeters
-    
-    
-    list_of_number_of_followers_of_the_retweeters = []
-    
-    for user in retweeters:
-        list_of_number_of_followers_of_the_retweeters.append( api.GetUser(user).AsDict()['followers_count']) #sums up the number of followers of the retweeters
-    
-    total_exposure = sum(list_of_number_of_followers_of_the_retweeters) + api.GetStatus(tweet_id).GetUser().AsDict()['followers_count'] #adds the sum of the followers of all the retweeters to the number of followers of the original tweeter
+    cursor = -1
+    while (cursor != 0):
+        retweeters = api.statuses.retweeters.ids(_id=tweet_id, cursor=cursor)
+        for user in retweeters['ids']:
+            total_exposure += api.users.show(user_id=user)['followers_count']
+        cursor=retweeters['next_cursor']
     
     return total_exposure
 
-print find_reach('433357143966642176')
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Find the potential viewership of a tweet.')
+    parser.add_argument('tweet_id', type=int, help='the tweet in question')
+    args = parser.parse_args()
 
+    print(find_reach(args.tweet_id))
